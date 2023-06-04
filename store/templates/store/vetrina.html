@@ -1,0 +1,42 @@
+{% extends 'store/base.html' %}
+{% block javaScript %}
+    
+
+
+{% endblock %}
+
+{% block title%} 
+Vetrina
+{% endblock %}
+
+{% block content %}
+    <h1>Vetrina</h1>
+    {% csrf_token %}
+    {% for item in prodottiInVendita %}
+    <form method="post" action="/aggiungiAlCarrello" class="form-group">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                
+                <input type="hidden" name="idProdotto" value="{{item.id}}">
+                <input type="text" value="{{item.nome}}" class="form-control">
+                <input type="number" name="numeroPezzi">
+                
+                <button type="submit" class="btn btn-success">aggiungi al carrello</button>
+            </div>
+            
+        </div>
+    </form>    
+    {% endfor %}
+{% endblock %}
+
+
+
+
+<!--
+    <form class="formAComparsa"action="/aggiungiAlCarrello/" method="POST">
+                    {% csrf_token %}
+                    {}
+                    <button type="submit" class="btn btn-primary" name="nuovoProdottoNelCarrello">Aggiungi al carrello</button>
+                </form> 
+ -->

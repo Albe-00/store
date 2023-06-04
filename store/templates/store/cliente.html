@@ -1,0 +1,26 @@
+{% extends 'store/base.html' %}
+
+{% block title%} 
+    {% if user.is_authenticated %}
+        profilo - {{user.username}}
+    {% endif %}	
+{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <h3>Benvenuto {{user.username}}</h3>
+        <h4>Il tuo profilo</h4>
+        <p>Nome: {{user.first_name}}</p>
+        <p>Cognome: {{user.last_name}}</p>
+        <p>Email: {{user.email}}</p>
+        <p>Username: {{user.username}}</p>
+        <p>Ultimo accesso: {{user.last_login}}</p>
+        <p>Data di registrazione: {{user.date_joined}}</p>
+        <a href="/modificaProfilo/" class="btn btn-primary">Modifica profilo</a>
+        <a href="/carrello" class="btn btn-primary">Carrello</a>
+    {% else %}
+        <h3>Non sei autenticato</h3>
+        <a href="/login/" class="btn btn-primary">Login</a>
+        <a href="/registrazione/" class="btn btn-primary">Registrati</a>
+    {% endif %}
+{% endblock %}

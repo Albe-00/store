@@ -1,0 +1,39 @@
+{% extends 'store/base.html' %}
+
+
+
+{% block title%} 
+    {% if user.is_authenticated %}
+        profilo - {{user.username}}
+    {% endif %}	
+{% endblock %}
+
+{% block content %}    
+    {% if user.is_authenticated %}
+        <h1>Carrello di {{user.username }}</h1>
+
+        {% with totale=0 %}         <!-- Inizializza la variabile total a 0 -->
+        
+
+            {% for item in carrelloCliente %}
+                <p>{{ item.quantita}}x {{ item.prodotto }}</p>
+                {% with total=total|add:item.prodotto.prezzo %}
+                {% endwith %}
+            {% endfor %}
+
+        {% endwith %}
+
+        <!-- TOOD correggere il totale -->
+        <h3>Totale: {{ totale }}</h3>
+        
+        
+        <form action="revisioneOrdine" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Procedi con l'ordine</button>
+        </form>
+    {% else %}
+        <h3>Non sei autenticato</h3>
+        <a href="/login/" class="btn btn-primary">Login</a>
+        <a href="/registrazione/" class="btn btn-primary">Registrati</a>
+    {% endif %}
+{% endblock %}

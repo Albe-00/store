@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-6*p4$ezgijeb%32f_uk7xutorjyzyyjy@m2_r7x78jlqj#32$^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -128,7 +128,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
-
+CSRF_TRUSTED_ORIGINS = ['https://web-production-1aa2.up.railway.app']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

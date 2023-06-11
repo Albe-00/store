@@ -1,0 +1,19 @@
+{% extends 'store/base.html' %}
+
+{% block title%} 
+Ordine
+{% endblock %}
+
+{% block content %}
+    
+    <h1>{{ordineDaVedere}}</h1>
+            
+    {% for prodotto in prodottiDellOrdine %}
+        <p>{{ prodotto }}</p>
+    {% endfor %}
+
+    <h3>Totale: {{ totale }} €</h3>
+            
+    
+
+{% endblock %}

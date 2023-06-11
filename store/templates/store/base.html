@@ -5,7 +5,7 @@
 	
 		.sidenav {
 			height:100%;
-			width:160px;
+			width:200px; /* 160px*/
 			position: fixed;
 			z-index:1;
 			top:0;
@@ -94,8 +94,11 @@
 			</li>
 			<li><a href="/home"> Home </a></li>
 			<li><a href="/cliente">Area Personale</a></li>
-			<li><a href="/vetrina">Vetrina Prodotti</a></li>
-			<li><a href="/nuovoProdotto">Nuovo prodotto</a></li>
+			{% if request.user.is_superuser %}
+				<li><a href="/gestioneProdotti">Gestione Prodotti</a></li>
+			{% endif %}
+
+			
 		</ul>
 	</div>
 	

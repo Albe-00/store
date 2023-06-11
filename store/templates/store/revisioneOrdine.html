@@ -5,6 +5,11 @@
         .bottoneModificatore{
             border: none;
         }
+
+        .form-orizzontale{
+            display: flex;
+            flex-direction: row;
+        }
     </style>
 {% endblock %}
 
@@ -15,29 +20,27 @@ Revisione dell'Ordine
 {% block content %}
     <h1>Revisione dell'Ordine</h1>
 
-    <form method="post" action="#" class="form-group">
-        {% csrf_token %}
-        {% for prodotto in ordineDaRevisionare %}
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    
-                    <span class="input-group-text" id="basic-addon1">{{ prodotto.quantita }}x</span>
-                    <span class="input-group-text" id="basic-addon1">{{ prodotto.prodotto }}</span>
-                    <button class="bottoneModificatore" type="submit" name="diminuisciQuantitaOggetto"><span class="input-group-text" id="basic-addon1">-</span></button>
-                    <button class="bottoneModificatore" type="submit" name="aumentaQuantitaOggetto"><span class="input-group-text" id="basic-addon1">+</span></button>
+    {% for prodotto in ordineDaRevisionare %}
+        
+        <form method="post" action="#" class="form-group form-orizzontale">
+            {% csrf_token %}
+            <input type="hidden" name="idProdotto" value="{{prodotto.id}}">
+            <span class="input-group-text" >{{ prodotto.quantita }}x</span>
+            <span class="input-group-text" >{{ prodotto.prodotto }}</span>
+            <button class="bottoneModificatore" type="submit" name="diminuisciQuantitaOggetto"><span class="input-group-text">-</span></button>
+            <button class="bottoneModificatore" type="submit" name="aumentaQuantitaOggetto"><span class="input-group-text">+</span></button>
+            <button class="bottoneModificatore" type="submit" name="rimuoviOggetto"><span class="input-group-text">X</span></button>
+            
+        </form>
+        
+    {% endfor %}
+            
+    <h3>Totale: {{ totale }} €</h3>
 
-                    
-                    
-                </div>
-                
-            </div>
-        {% endfor %}
-    </form>    
-
-    <form method="post" action="pagamento" class="form-group">
+    <form method="post" action="effettuaOrdine" class="form-group">
         {% csrf_token %}
         
-        <button type="submit" class="btn btn-success">Conferma e vai al pagamento</button>
+        <button type="submit" class="btn btn-primary">Conferma e vai al pagamento</button>
     </form>  
     
 {% endblock %}

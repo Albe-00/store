@@ -7,6 +7,7 @@ class Prodotto(models.Model):
     nome = models.CharField(max_length=200)
     descrizione = models.CharField(max_length=400)
     prezzo = models.FloatField()
+    visibile = models.BooleanField(default=True)
     #TODO manca il collegamento con il tag e la categoria
 
     def __str__(self):
@@ -25,9 +26,10 @@ class Carrello(models.Model):
 
 class Ordine(models.Model):
     cliente = models.ForeignKey(User, on_delete=models.CASCADE , null=False)
-
+    data = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return "ordine di "+self.cliente.username+" | "+str(self.id)
+        data = self.data.strftime("%Y-%m-%d %H:%M")
+        return "ordine di "+self.cliente.username+" | "+str(self.id) + " - "+str(data)
 
 
 #Classe di associazione tra prodotto e ordine con la quantità  
@@ -37,7 +39,7 @@ class ProdottoOrdine(models.Model):
     quantita = models.IntegerField()
 
     def __str__(self):
-        return str(self.ordine)+" : "+str(self.prodotto)+", numero pezzi : "+str(self.quantita)
+        return str(self.prodotto)+", numero pezzi : "+str(self.quantita)
 
     
     

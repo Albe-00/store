@@ -1,8 +1,11 @@
 {% extends 'store/base.html' %}
-{% block javaScript %}
-    
 
-
+{% block styleCSS %}
+    <style>
+        ul{
+            list-style-type:none;
+        }
+    </style>
 {% endblock %}
 
 {% block title%} 
@@ -10,7 +13,18 @@ I tuoi Ordini
 {% endblock %}
 
 {% block content %}
-    <h1>I tuoi Ordini</h1>
 
+    <h1>I tuoi Ordini</h1>
+    
+        <ul>
+            {% for ordine in ordiniCliente %}
+                <form method="POST" action="/vediOrdine">
+                    {% csrf_token %}
+                    <input type="hidden" name="idOrdine" value="{{ordine.id}}">
+                    <li><button type="submit" class="btn btn-link">{{ordine}}</button></li>
+                </form>
+            {% endfor %}
+        </ul>
+    
 
 {% endblock %}

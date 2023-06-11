@@ -16,8 +16,9 @@
         <p>Username: {{user.username}}</p>
         <p>Ultimo accesso: {{user.last_login}}</p>
         <p>Data di registrazione: {{user.date_joined}}</p>
-        <a href="/modificaProfilo/" class="btn btn-primary">Modifica profilo</a>
+        <!--<a href="/modificaProfilo/" class="btn btn-primary">Modifica profilo</a>-->
         <a href="/carrello" class="btn btn-primary">Carrello</a>
+        <a href="/vediStoricoOrdini" class="btn btn-primary">Ordini</a>
     {% else %}
         <h3>Non sei autenticato</h3>
         <a href="/login/" class="btn btn-primary">Login</a>

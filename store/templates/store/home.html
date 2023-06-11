@@ -1,9 +1,68 @@
 {% extends 'store/base.html' %}
 
+{% block styleCSS %} 
+    <style>
+        .form-orizzontale{
+            display: flex;
+            flex-direction: row;
+        }
+        .testoCentrato{
+            text-align: center;
+        }
+    
+    </style>
+{% endblock %}
+
 {% block title%} 
 Home Page
 {% endblock %}
 
 {% block content %}
-    <h1>Home Page</h1>
+    <h1 class="mt-2">Ricerca un prodotto</h1>
+    <form action="#" method="POST">
+        {% csrf_token %}
+        {{form}}
+        <input type="submit" value="Cerca">
+    </form>    
+    {% if prodottiTrovati %}
+    
+        {% for prodotto in prodottiTrovati %}
+            <form method="post" action="/aggiungiAlCarrello" class="form-group form-orizzontale">
+                {% csrf_token %}
+                
+                    
+                <input type="hidden" name="idProdotto" value="{{prodotto.id}}">
+                <input class="testoCentrato" type="text" value="{{prodotto.nome}}" readonly>
+                <input type="number" name="numeroPezzi" placeholder="Inserisci la quantità">
+                
+                <button type="submit" class="btn btn-success">aggiungi al carrello</button>
+                
+                
+            </form>
+        {% endfor %}
+    {% else %}
+        {% if request.method == 'POST'%}
+            <h1 class="mt-2">Nessun prodotto trovato</h1>
+        {% endif %}    
+    {% endif %}
+    <hr class="mt-0 mb-4">
+
+    <h1 class="mt-2">Vetrina</h1>
+    {% if prodottiInVendita %}
+        {% for prodotto in prodottiInVendita %}
+        <form method="post" action="/aggiungiAlCarrello" class="form-group form-orizzontale">
+            {% csrf_token %}
+            {% if prodotto.visibile %}      
+                <input type="hidden" name="idProdotto" value="{{prodotto.id}}">
+                <input class="testoCentrato" type="text" value="{{prodotto.nome}}" readonly>
+                <input type="number" name="numeroPezzi" placeholder="Inserisci la quantità">
+                
+                <button type="submit" class="btn btn-success">aggiungi al carrello</button>
+            {% endif %}
+        </form>    
+        {% endfor %}
+    {% else %}
+        <h2 class="mt-2">Nessun prodotto in vendita</h2>
+    {% endif %}
+    
 {% endblock %}

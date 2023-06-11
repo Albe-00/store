@@ -4,13 +4,15 @@
 Nuovo Prodotto
 {% endblock %}
 
+{% load crispy_forms_tags %}
+
 
 {% block content %}
 <h3>Aggiungi un nuovo prodotto</h3>
 <form method="post" action="/nuovoProdotto/" class="form-group">
     {% csrf_token %}
     <div class="input-group mb-3">
-        {{form}}
+        {{form| crispy}}
         <div class="input-group">
             <button type="submit" name="save" class="btn btn-success">Aggiungi</button>
         </div>

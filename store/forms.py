@@ -4,4 +4,6 @@ class CreaNuovoProdotto(forms.Form):
     nome = forms.CharField(label="nome", max_length=200)
     descrizione = forms.CharField(max_length=400)
     prezzo = forms.FloatField()
- 
+
+class CercaProdotto(forms.Form):
+    stringaRicerca = forms.CharField(label="Ricerca", max_length=200)

@@ -7,10 +7,6 @@ from django.db.models import F,Sum,Q
 
 
 # Create your views here.
-"""
-def home(response):
-    return render(response, 'store/home.html', {})
-""" 
 def home(request):
     prodottiInVendita = Prodotto.objects.all()
     if request.method == "POST" :
@@ -38,27 +34,53 @@ def cliente(response):
 
 def gestioneProdotti(request):
 
-    idProdotto = request.POST.get("idProdotto")
-    print("-------------------------idProdotto : "+str(idProdotto))
+    prodottiSalvati = Prodotto.objects.all()
 
-    if 'nuovoProdotto' in request.POST :
-        return HttpResponseRedirect("/nuovoProdotto")
-            
-    if 'modificaProdotto' in request.POST : 
-        return render(request, 'store/modificaProdotto.html', {"idProdotto" : idProdotto})
-        
-    prodottiSalvati = Prodotto.objects.all()    
-    if 'modificaVisibilitaProdotto' in request.POST : 
-        prodottoDaModificare = Prodotto.objects.get(id=idProdotto) 
-        if prodottoDaModificare.visibile == True :
-            prodottoDaModificare.visibile = False
-        else :
-            prodottoDaModificare.visibile = True
-        prodottoDaModificare.save()        
-        return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati}) 
-    
-    return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati}) 
+    if request.method == "POST" :
 
+        idProdotto = request.POST.get("idProdotto")
+        prodottoDaModificare = Prodotto.objects.get(id=idProdotto)
+
+        if 'nuovoProdotto' in request.POST :
+            return HttpResponseRedirect("/nuovoProdotto")
+
+        if 'modificaProdotto' in request.POST :
+                form = ModificaProdotto()
+                return render(request, 'store/modificaProdotto.html', {"prodottoDaModificare" : prodottoDaModificare , "form" : form})
+
+        if 'annullaModifiche' in request.POST :
+            return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
+
+        if 'salvaModifiche' in request.POST:
+            form = ModificaProdotto(request.POST)
+            if form.is_valid():
+                if form.cleaned_data["nuovoNome"] != "":
+                    prodottoDaModificare.nome = form.cleaned_data["nuovoNome"]
+                    print("nuovo nome: " + form.cleaned_data["nuovoNome"])
+                if form.cleaned_data["nuovaDescrizione"] != "":
+                    prodottoDaModificare.descrizione = form.cleaned_data["nuovaDescrizione"]
+
+                if form.cleaned_data["nuovoPrezzo"] is not None:
+                    prodottoDaModificare.prezzo = form.cleaned_data["nuovoPrezzo"]
+                prodottoDaModificare.save()
+
+
+            return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati": prodottiSalvati})
+
+
+        if 'modificaVisibilitaProdotto' in request.POST :
+
+            if prodottoDaModificare.visibile == True :
+                prodottoDaModificare.visibile = False
+            else :
+                prodottoDaModificare.visibile = True
+            prodottoDaModificare.save()
+            return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
+
+        return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
+    else:
+
+        return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
 def nuovoProdotto(request):
     if request.method == "POST" :
         form = CreaNuovoProdotto(request.POST)
@@ -81,10 +103,9 @@ def nuovoProdotto(request):
     return render(request ,  "store/nuovoProdotto.html" , {"form":form})   
 
 def modificaProdotto(request):
-    print("sono in modifica prodotto")
+    form = ModificaProdotto()
+    return render(request, 'store/modificaProdotto.html', {"form" : form})
 
-def nascondiProdotto(request):
-    print("sono in nascondi prodotto")
 
 def viewCarrello(request):
     if request.user.is_authenticated:
@@ -114,9 +135,17 @@ def viewCarrello(request):
 
 def aggiungiAlCarrello(request):
     if request.user.is_authenticated:
-        #TODO controllare che il prodotto non sia già nel carrello
         idProdotto = request.POST.get("idProdotto")
         quantita = request.POST.get("numeroPezzi")
+        if quantita == "":
+            quantita = 1
+        #se il prodotto è già nel carrello aggiungo la quantità senza aggiungere una nuova istanza
+        for prodotto in Carrello.objects.filter(cliente=request.user):
+            if prodotto.prodotto.id == int(idProdotto):
+                prodotto.quantita += int(quantita)
+                prodotto.save()
+                return HttpResponseRedirect("/home")
+        #altrimenti creo una nuova istanza
         nuovoProdottoCarrello = Carrello(prodotto=Prodotto.objects.get(id=idProdotto), cliente=request.user, quantita=quantita)
         nuovoProdottoCarrello.save()
     

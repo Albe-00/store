@@ -8,7 +8,6 @@ class Prodotto(models.Model):
     descrizione = models.CharField(max_length=400)
     prezzo = models.FloatField()
     visibile = models.BooleanField(default=True)
-    #TODO manca il collegamento con il tag e la categoria
 
     def __str__(self):
         return self.nome+" | "+self.descrizione+" , prezzo : "+str(self.prezzo) +" €"

@@ -9,10 +9,15 @@ urlpatterns = [
 
     path('gestioneProdotti/', views.gestioneProdotti, name='gestioneProdotti'),
     path('nuovoProdotto/', views.nuovoProdotto, name='nuovoProdotto'),
-    path('modificaProdotto/', views.modificaProdotto, name='modificaProdotto'),
 
-    path('carrello',views.viewCarrello, name='viewCarrello'),
+    path('gestioneAcquisto', views.gestioneAcquisto, name='gestioneAcquisto'),
+
+    path('revisioneAcquistoRapido', views.revisioneAcquistoRapido, name='revisioneAcquistoRapido'),
+    path('effettuaAcquistoRapido', views.effettuaAcquistoRapido, name='effettuaAcquistoRapido'),
+
+
     path('aggiungiAlCarrello',views.aggiungiAlCarrello, name='aggiungiAlCarrello'),
+    path('carrello',views.viewCarrello, name='viewCarrello'),
 
     path('revisioneOrdine',views.revisioneOrdine, name='revisioneOrdine'),
     path('effettuaOrdine',views.effettuaOrdine, name='effettuaOrdine'),

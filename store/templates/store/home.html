@@ -24,6 +24,10 @@
         .singoloCampoProdotto{
             margin-bottom: 5px;
         }
+        input{
+            border: 1px solid black;
+            border-radius: 10px;
+        }
     </style>
 {% endblock %}
 
@@ -41,26 +45,27 @@ Home Page
     {% if prodottiTrovati %}
     
         {% for prodotto in prodottiTrovati %}
-            <form method="post" action="/aggiungiAlCarrello" class="form-group form-orizzontale">
+            <form method="post" action="/gestioneAcquisto" class="form-group form-orizzontale">
                 {% csrf_token %}
                 
                 <div class="singoloProdotto">
-                    <input type="hidden" name="idProdotto" value="{{prodotto.id}}">
-                    <div>
-                        <h6>{{prodotto.nome}}</h6>
+                        <input type="hidden" name="idProdotto" value="{{prodotto.id}}">
+                        <div class="singoloCampoProdotto">
+                            <h6>{{prodotto.nome}}</h6>
+                        </div>
+                        <div class="singoloCampoProdotto">
+                            <span>{{prodotto.descrizione}}</span>
+                        </div>
+                        <div class="singoloCampoProdotto">
+                            <h6>{{prodotto.prezzo}}€</h6>
+                        </div>
+                        <div class="singoloCampoProdotto">
+                            <input class="testoCentrato" type="number" name="numeroPezzi" placeholder="Inserisci la quantità">
+                        </div>
+                        <div class="singoloCampoProdotto">
+                        <button type="submit" name="acquistaOraButton" class="btn btn-primary">Acquista ora</button>
+                        <button type="submit" name="aggiungiAlCarrelloButton" class="btn btn-primary">aggiungi al carrello</button>
                     </div>
-                    <div>
-                        <span>{{prodotto.descrizione}}</span>
-                    </div>
-                    <div>
-                        <h6>{{prodotto.prezzo}}€</h6>
-                    </div>
-                    <div>
-                        <input class="testoCentrato" type="number" name="numeroPezzi" placeholder="Inserisci la quantità">
-                    </div>
-
-                    <button type="submit" class="btn btn-success">aggiungi al carrello</button>
-
                 </div>
                 
             </form>
@@ -75,7 +80,7 @@ Home Page
     <h1 class="mt-2">Vetrina</h1>
     {% if prodottiInVendita %}
         {% for prodotto in prodottiInVendita %}
-            <form method="post" action="/aggiungiAlCarrello" class="form-group form-orizzontale">
+            <form method="post" action="/gestioneAcquisto" class="form-group form-orizzontale">
                 {% csrf_token %}
                 {% if prodotto.visibile %}
                     <div class="singoloProdotto">
@@ -93,7 +98,8 @@ Home Page
                             <input class="testoCentrato" type="number" name="numeroPezzi" placeholder="Inserisci la quantità">
                         </div>
                         <div class="singoloCampoProdotto">
-                        <button type="submit" class="btn btn-success">aggiungi al carrello</button>
+                        <button type="submit" name="acquistaOraButton" class="btn btn-primary">Acquista ora</button>
+                        <button type="submit" name="aggiungiAlCarrelloButton" class="btn btn-primary">Aggiungi al carrello</button>
                     </div>
                 </div>
 

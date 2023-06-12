@@ -26,8 +26,7 @@ def home(request):
             
     else :
         form = CercaProdotto()
-        return render(request ,  "store/home.html" , {"form":form , "prodottiInVendita":prodottiInVendita})    
-
+        return render(request ,  "store/home.html" , {"form":form , "prodottiInVendita":prodottiInVendita})
 
 def cliente(response):
     return render(response, 'store/cliente.html', {})
@@ -100,38 +99,43 @@ def nuovoProdotto(request):
     else :
         form = CreaNuovoProdotto()
         
-    return render(request ,  "store/nuovoProdotto.html" , {"form":form})   
-
-def modificaProdotto(request):
-    form = ModificaProdotto()
-    return render(request, 'store/modificaProdotto.html', {"form" : form})
+    return render(request ,  "store/nuovoProdotto.html" , {"form":form})
 
 
-def viewCarrello(request):
+
+def gestioneAcquisto(request):
     if request.user.is_authenticated:
+        if request.method == 'POST' :
 
-        idProdotto = request.POST.get("idProdotto")
-        if 'diminuisciQuantitaOggetto' in request.POST :
-            prodottoDaModificare = Carrello.objects.get(id=idProdotto) 
-            prodottoDaModificare.quantita -= 1
-            prodottoDaModificare.save()
-            if prodottoDaModificare.quantita == 0 :
-                prodottoDaModificare.delete()
-                return HttpResponseRedirect("/carrello")
-        if 'aumentaQuantitaOggetto' in request.POST : 
-            prodottoDaModificare = Carrello.objects.get(id=idProdotto) 
-            prodottoDaModificare.quantita += 1
-            prodottoDaModificare.save()
-        if 'rimuoviOggetto' in request.POST : 
-            prodottoDaModificare = Carrello.objects.get(id=idProdotto) 
-            prodottoDaModificare.delete()
-            return HttpResponseRedirect("/carrello")     
+            idProdotto = request.POST.get("idProdotto")
+            quantita = request.POST.get("numeroPezzi")
+            prodottoDaGestire = Prodotto.objects.get(id=idProdotto)
+            if quantita == "":
+                quantita = 1
+            print("GESTIONE ACQUISTO")
+            print("idProdotto: " + str(idProdotto))
+            print("quantita: " + str(quantita))
 
-        carrelloCliente = Carrello.objects.filter(cliente=request.user).select_related('prodotto')
-        totale = carrelloCliente.annotate(subtotale=F('quantita') * F('prodotto__prezzo')).aggregate(Sum('subtotale'))['subtotale__sum'] or 0
-        return render(request, 'store/carrello.html', {"carrelloCliente": carrelloCliente, "totale": totale})
+
+            if 'acquistaOraButton' in request.POST :
+                totale = prodottoDaGestire.prezzo * int(quantita)
+                print("totale: " + str(totale))
+                return render(request, "store/revisioneAcquistoRapido.html",{"prodottoDaRevisionare": prodottoDaGestire,"quantita":quantita ,"totale": totale})
+
+            if 'aggiungiAlCarrelloButton' in request.POST :
+                # Aggiungo il prodotto al carrello
+                # se il prodotto è già nel carrello aggiungo la quantità senza aggiungere una nuova istanza
+                for prodotto in Carrello.objects.filter(cliente=request.user):
+                    if prodotto.prodotto.id == int(idProdotto):
+                        prodotto.quantita += int(quantita)
+                        prodotto.save()
+                        return HttpResponseRedirect("/home")
+                # altrimenti creo una nuova istanza
+                nuovoProdottoCarrello = Carrello(prodotto=prodottoDaGestire, cliente=request.user,quantita=quantita)
+                nuovoProdottoCarrello.save()
+                return HttpResponseRedirect("/home")
     else:
-        return render(request, 'store/carrello.html', {})
+        return HttpResponseRedirect("/login")
 
 def aggiungiAlCarrello(request):
     if request.user.is_authenticated:
@@ -152,7 +156,63 @@ def aggiungiAlCarrello(request):
         return HttpResponseRedirect("/home")    
     else:
         return HttpResponseRedirect("/login")
-                      
+
+def viewCarrello(request):
+    if request.user.is_authenticated:
+
+        idProdotto = request.POST.get("idProdotto")
+        if 'diminuisciQuantitaOggetto' in request.POST :
+            prodottoDaModificare = Carrello.objects.get(id=idProdotto)
+            prodottoDaModificare.quantita -= 1
+            prodottoDaModificare.save()
+            if prodottoDaModificare.quantita == 0 :
+                prodottoDaModificare.delete()
+                return HttpResponseRedirect("/carrello")
+        if 'aumentaQuantitaOggetto' in request.POST :
+            prodottoDaModificare = Carrello.objects.get(id=idProdotto)
+            prodottoDaModificare.quantita += 1
+            prodottoDaModificare.save()
+        if 'rimuoviOggetto' in request.POST :
+            prodottoDaModificare = Carrello.objects.get(id=idProdotto)
+            prodottoDaModificare.delete()
+            return HttpResponseRedirect("/carrello")
+
+        carrelloCliente = Carrello.objects.filter(cliente=request.user).select_related('prodotto')
+        totale = carrelloCliente.annotate(subtotale=F('quantita') * F('prodotto__prezzo')).aggregate(Sum('subtotale'))['subtotale__sum'] or 0
+        return render(request, 'store/carrello.html', {"carrelloCliente": carrelloCliente, "totale": totale})
+    else:
+        return render(request, 'store/carrello.html', {})
+
+def revisioneAcquistoRapido(request):
+    if request.method == 'POST':
+        idProdotto = request.POST.get("idProdotto")
+        quantita = request.POST.get("quantita")
+        prodottoDaGestire = Prodotto.objects.get(id=idProdotto)
+        if 'diminuisciQuantitaOggetto' in request.POST:
+            quantita = int(quantita) - 1
+            if quantita == 0:
+                return HttpResponseRedirect("/home")
+        if 'aumentaQuantitaOggetto' in request.POST:
+            quantita = int(quantita) + 1
+        if 'rimuoviOggetto' in request.POST:
+            return HttpResponseRedirect("/home")
+        totale = prodottoDaGestire.prezzo * int(quantita)
+        return render(request, "store/revisioneAcquistoRapido.html",{"prodottoDaRevisionare": prodottoDaGestire, "quantita": quantita, "totale": totale})
+
+def effettuaAcquistoRapido(request):
+    # Creo un nuovo ordine senza aggiungere il prodotto al carrello
+    if request.method == 'POST':
+        if 'effettuaAcquisto' in request.POST:
+            idProdotto = request.POST.get("idProdotto")
+            quantita = request.POST.get("quantita")
+            prodottoDaGestire = Prodotto.objects.get(id=idProdotto)
+
+            nuovoOrdine = Ordine(cliente=request.user)
+            nuovoOrdine.save()
+            nuovoProdottoOrdine = ProdottoOrdine(prodotto=prodottoDaGestire, ordine=nuovoOrdine, quantita=quantita)
+            nuovoProdottoOrdine.save()
+    return HttpResponseRedirect("/home")
+
 def revisioneOrdine(request):
     if request.method == 'POST':    
         idProdotto = request.POST.get("idProdotto")

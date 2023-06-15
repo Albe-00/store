@@ -13,6 +13,10 @@
             align-items: center;
             justify-content: space-between;
         }
+        .infoProdotto{
+            display: flex;
+            flex-direction: column;
+        }
         .tastiFunzione{
             display: flex;
             flex-direction: row;
@@ -55,8 +59,11 @@
 
                 <input type="hidden" name="idProdotto" value="{{prodotto.id}}">
 
-                <span >{{ prodotto }}</span>
-
+                <div class="infoProdotto form-group">
+                    <span >{{ prodotto.nome}}</span>
+                    <span >{{ prodotto.descrizione}}</span>
+                    <span >{{ prodotto.prezzo}}</span>
+                </div>
                 <div class="tastiFunzione">
                     <button class="bottoneModificatore" type="submit" name="modificaProdotto">
                         <span>

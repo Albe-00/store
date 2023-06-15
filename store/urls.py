@@ -19,9 +19,13 @@ urlpatterns = [
     path('aggiungiAlCarrello',views.aggiungiAlCarrello, name='aggiungiAlCarrello'),
     path('carrello',views.viewCarrello, name='viewCarrello'),
 
+
     path('revisioneOrdine',views.revisioneOrdine, name='revisioneOrdine'),
     path('effettuaOrdine',views.effettuaOrdine, name='effettuaOrdine'),
-    path('pagamento',views.pagamento, name='pagamento'),
+
+
+    path('salvaPagamento',views.salvaPagamento, name='salvaPagamento'),
+
 
     path('vediStoricoOrdini',views.vediStoricoOrdini, name='vediStoricoOrdini'),
     path('vediOrdine',views.vediOrdine, name='vediOrdine'),

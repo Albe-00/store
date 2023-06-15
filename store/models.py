@@ -26,6 +26,9 @@ class Carrello(models.Model):
 class Ordine(models.Model):
     cliente = models.ForeignKey(User, on_delete=models.CASCADE , null=False)
     data = models.DateTimeField(auto_now_add=True)
+    numeroCarta = models.CharField(max_length=16, default="0000000000000000")
+    scadenzaCarta = models.DateField(max_length=5, default="2021-01-01")
+    cvvCarta = models.CharField(max_length=3 , default="000")
     def __str__(self):
         data = self.data.strftime("%Y-%m-%d %H:%M")
         return "ordine di "+self.cliente.username+" | "+str(self.id) + " - "+str(data)

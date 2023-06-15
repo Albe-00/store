@@ -8,23 +8,27 @@ from django.db.models import F,Sum,Q
 
 # Create your views here.
 def home(request):
-    prodottiInVendita = Prodotto.objects.all()
+    prodottiInVendita = Prodotto.objects.filter(visibile=True)
     if request.method == "POST" :
         form = CercaProdotto(request.POST)
-        
-        if form.is_valid() :
-            stringaRicerca = form.cleaned_data["stringaRicerca"]         
 
-            prodottiTrovati = Prodotto.objects.filter(
-                ( Q(nome__contains=stringaRicerca) | Q(descrizione__contains=stringaRicerca) ) & Q(visibile=True)
-                )
+        if'ricerca' in request.POST :
+            #arrivo dalla ricerca di un prodotto
+            if form.is_valid() :
+                stringaRicerca = form.cleaned_data["stringaRicerca"]
 
-            return render(request, 'store/home.html', {"form" : form , "prodottiTrovati":prodottiTrovati , "prodottiInVendita":prodottiInVendita})
+                prodottiTrovati = Prodotto.objects.filter(
+                    ( Q(nome__contains=stringaRicerca) | Q(descrizione__contains=stringaRicerca) ) & Q(visibile=True)
+                    )
 
+                return render(request, 'store/home.html', {"form" : form , "prodottiTrovati":prodottiTrovati , "prodottiInVendita":prodottiInVendita})
         else:
-            print("form non valido")
+            #arrivo dal pagamento
+            form = CercaProdotto()
+            return render(request, "store/home.html", {"form": form, "prodottiInVendita": prodottiInVendita})
             
     else :
+        #metodo GET
         form = CercaProdotto()
         return render(request ,  "store/home.html" , {"form":form , "prodottiInVendita":prodottiInVendita})
 
@@ -34,52 +38,54 @@ def cliente(response):
 def gestioneProdotti(request):
 
     prodottiSalvati = Prodotto.objects.all()
+    if request.user.is_superuser:
+        if request.method == "POST" :
 
-    if request.method == "POST" :
+            idProdotto = request.POST.get("idProdotto")
+            prodottoDaModificare = Prodotto.objects.get(id=idProdotto)
 
-        idProdotto = request.POST.get("idProdotto")
-        prodottoDaModificare = Prodotto.objects.get(id=idProdotto)
+            if 'nuovoProdotto' in request.POST :
+                return HttpResponseRedirect("/nuovoProdotto")
 
-        if 'nuovoProdotto' in request.POST :
-            return HttpResponseRedirect("/nuovoProdotto")
+            if 'modificaProdotto' in request.POST :
+                    form = ModificaProdotto()
+                    return render(request, 'store/modificaProdotto.html', {"prodottoDaModificare" : prodottoDaModificare , "form" : form})
 
-        if 'modificaProdotto' in request.POST :
-                form = ModificaProdotto()
-                return render(request, 'store/modificaProdotto.html', {"prodottoDaModificare" : prodottoDaModificare , "form" : form})
+            if 'annullaModifiche' in request.POST :
+                return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
 
-        if 'annullaModifiche' in request.POST :
-            return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
+            if 'salvaModifiche' in request.POST:
+                form = ModificaProdotto(request.POST)
+                if form.is_valid():
+                    if form.cleaned_data["nuovoNome"] != "":
+                        prodottoDaModificare.nome = form.cleaned_data["nuovoNome"]
+                        print("nuovo nome: " + form.cleaned_data["nuovoNome"])
+                    if form.cleaned_data["nuovaDescrizione"] != "":
+                        prodottoDaModificare.descrizione = form.cleaned_data["nuovaDescrizione"]
 
-        if 'salvaModifiche' in request.POST:
-            form = ModificaProdotto(request.POST)
-            if form.is_valid():
-                if form.cleaned_data["nuovoNome"] != "":
-                    prodottoDaModificare.nome = form.cleaned_data["nuovoNome"]
-                    print("nuovo nome: " + form.cleaned_data["nuovoNome"])
-                if form.cleaned_data["nuovaDescrizione"] != "":
-                    prodottoDaModificare.descrizione = form.cleaned_data["nuovaDescrizione"]
+                    if form.cleaned_data["nuovoPrezzo"] is not None:
+                        prodottoDaModificare.prezzo = form.cleaned_data["nuovoPrezzo"]
+                    prodottoDaModificare.save()
 
-                if form.cleaned_data["nuovoPrezzo"] is not None:
-                    prodottoDaModificare.prezzo = form.cleaned_data["nuovoPrezzo"]
+
+                return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati": prodottiSalvati})
+
+
+            if 'modificaVisibilitaProdotto' in request.POST :
+
+                if prodottoDaModificare.visibile == True :
+                    prodottoDaModificare.visibile = False
+                else :
+                    prodottoDaModificare.visibile = True
                 prodottoDaModificare.save()
+                return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
 
-
-            return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati": prodottiSalvati})
-
-
-        if 'modificaVisibilitaProdotto' in request.POST :
-
-            if prodottoDaModificare.visibile == True :
-                prodottoDaModificare.visibile = False
-            else :
-                prodottoDaModificare.visibile = True
-            prodottoDaModificare.save()
             return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
+        else:
 
-        return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
+            return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
     else:
-
-        return render(request, 'store/gestioneProdotti.html', {"prodottiSalvati" : prodottiSalvati})
+        return HttpResponseRedirect("/login")
 def nuovoProdotto(request):
     if request.method == "POST" :
         form = CreaNuovoProdotto(request.POST)
@@ -198,7 +204,8 @@ def revisioneAcquistoRapido(request):
             return HttpResponseRedirect("/home")
         totale = prodottoDaGestire.prezzo * int(quantita)
         return render(request, "store/revisioneAcquistoRapido.html",{"prodottoDaRevisionare": prodottoDaGestire, "quantita": quantita, "totale": totale})
-
+    else:
+        return HttpResponseRedirect("/home")
 def effettuaAcquistoRapido(request):
     # Creo un nuovo ordine senza aggiungere il prodotto al carrello
     if request.method == 'POST':
@@ -211,7 +218,8 @@ def effettuaAcquistoRapido(request):
             nuovoOrdine.save()
             nuovoProdottoOrdine = ProdottoOrdine(prodotto=prodottoDaGestire, ordine=nuovoOrdine, quantita=quantita)
             nuovoProdottoOrdine.save()
-    return HttpResponseRedirect("/home")
+            totale = prodottoDaGestire.prezzo * int(quantita)
+    return render(request, "store/pagamento.html", {"nuovoOrdine": nuovoOrdine , "totale": totale})
 
 def revisioneOrdine(request):
     if request.method == 'POST':    
@@ -238,28 +246,35 @@ def revisioneOrdine(request):
 
         return render(request ,  "store/revisioneOrdine.html" , {"ordineDaRevisionare":prodottiCarrello , "totale": totale})
 
-def effettuaOrdine(response):
-    nuovoOrdine = Ordine(cliente=response.user)
+def effettuaOrdine(request):
+    nuovoOrdine = Ordine(cliente=request.user)
     nuovoOrdine.save()
-    prodottiCarrello = Carrello.objects.filter(cliente=response.user)
+    prodottiCarrello = Carrello.objects.filter(cliente=request.user)
     for prodottoCarrello in prodottiCarrello:
         nuovoProdottoOrdine = ProdottoOrdine(prodotto=prodottoCarrello.prodotto, ordine=nuovoOrdine, quantita=prodottoCarrello.quantita)
         nuovoProdottoOrdine.save()
         prodottoCarrello.delete()    
-    return HttpResponseRedirect("/pagamento")        
+    return render(request ,  "store/pagamento.html" , {"nuovoOrdine":nuovoOrdine})
         
-def pagamento(response):
-    return render(response ,  "store/pagamento.html" , {})
+def salvaPagamento(request):
+    if request.method == 'POST':
+        idOrdine = request.POST.get("idOrdine")
+        ordineDaPagare = Ordine.objects.get(id=idOrdine)
+        ordineDaPagare.numeroCarta = request.POST.get("numeroCarta")
+        ordineDaPagare.scadenzaCarta = request.POST.get("scadenzaCarta")
+        ordineDaPagare.cvvCarta = request.POST.get("cvvCarta")
+        return HttpResponseRedirect("home")
 
-def vediStoricoOrdini(response):
-    ordiniCliente = Ordine.objects.filter(cliente=response.user)
-    return render(response ,  "store/vediStoricoOrdini.html" , {"ordiniCliente":ordiniCliente })
+def vediStoricoOrdini(request):
+    ordiniCliente = Ordine.objects.filter(cliente=request.user)
+    return render(request ,  "store/vediStoricoOrdini.html" , {"ordiniCliente":ordiniCliente })
 
 def vediOrdine(request):
     if request.method == 'POST':   
         idOrdine = request.POST.get("idOrdine")  
         ordineDaVedere = Ordine.objects.get(id=idOrdine)
-        prodottiDellOrdine=ProdottoOrdine.objects.filter(ordine = idOrdine)    
+        #prodottiDellOrdineD=ProdottoOrdine.objects.filter(ordine = idOrdine)
+        prodottiDellOrdine = ProdottoOrdine.objects.prefetch_related('prodotto').filter(ordine = idOrdine)
         totale = prodottiDellOrdine.annotate(subtotale=F('quantita') * F('prodotto__prezzo')).aggregate(Sum('subtotale'))['subtotale__sum'] or 0
 
         return render(request ,  "store/vediOrdine.html" , {"ordineDaVedere": ordineDaVedere , "prodottiDellOrdine" : prodottiDellOrdine , "totale": totale})

@@ -5,9 +5,13 @@
         .formRicerca{
             margin-bottom: 15px;
         }
-        .form-orizzontale{
+        .form-prodotto{
             display: flex;
             flex-direction: row;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f2f2f2;
         }
         .testoCentrato{
             text-align: center;
@@ -28,6 +32,14 @@
             border: 1px solid black;
             border-radius: 10px;
         }
+
+        .prova{
+            max-width: 200px;
+            display: inline-block;
+            overflow: auto;
+            /*white-space: wrap; nowrap*/
+        }
+
     </style>
 {% endblock %}
 
@@ -36,16 +48,19 @@ Home Page
 {% endblock %}
 
 {% block content %}
+    <span class="prova">
+        ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
+    </span>
     <h1 class="mt-2">Ricerca un prodotto</h1>
     <form class="formRicerca" action="#" method="POST">
         {% csrf_token %}
         {{form}}
-        <input type="submit" value="Cerca">
+        <input type="submit" name="ricerca" value="Cerca">
     </form>    
     {% if prodottiTrovati %}
     
         {% for prodotto in prodottiTrovati %}
-            <form method="post" action="/gestioneAcquisto" class="form-group form-orizzontale">
+            <form method="post" action="/gestioneAcquisto" class="form-group form-prodotto">
                 {% csrf_token %}
                 
                 <div class="singoloProdotto">
@@ -75,6 +90,7 @@ Home Page
             <h1 class="mt-2">Nessun prodotto trovato</h1>
         {% endif %}    
     {% endif %}
+
     <hr class="mt-0 mb-4">
 
     <h1 class="mt-2">Vetrina</h1>
@@ -82,28 +98,25 @@ Home Page
         {% for prodotto in prodottiInVendita %}
             <form method="post" action="/gestioneAcquisto" class="form-group form-orizzontale">
                 {% csrf_token %}
-                {% if prodotto.visibile %}
-                    <div class="singoloProdotto">
-                        <input type="hidden" name="idProdotto" value="{{prodotto.id}}">
-                        <div class="singoloCampoProdotto">
-                            <h6>{{prodotto.nome}}</h6>
-                        </div>
-                        <div class="singoloCampoProdotto">
-                            <span>{{prodotto.descrizione}}</span>
-                        </div>
-                        <div class="singoloCampoProdotto">
-                            <h6>{{prodotto.prezzo}}€</h6>
-                        </div>
-                        <div class="singoloCampoProdotto">
-                            <input class="testoCentrato" type="number" name="numeroPezzi" placeholder="Inserisci la quantità">
-                        </div>
-                        <div class="singoloCampoProdotto">
+                <div class="singoloProdotto">
+                    <input type="hidden" name="idProdotto" value="{{prodotto.id}}">
+                    <div class="singoloCampoProdotto">
+                        <h6>{{prodotto.nome}}</h6>
+                    </div>
+                    <div class="singoloCampoProdotto">
+                        <span>{{prodotto.descrizione}}</span>
+                    </div>
+                    <div class="singoloCampoProdotto">
+                        <h6>{{prodotto.prezzo}}€</h6>
+                    </div>
+                    <div class="singoloCampoProdotto">
+                        <input class="testoCentrato" type="number" name="numeroPezzi" placeholder="Inserisci la quantità">
+                    </div>
+                    <div class="singoloCampoProdotto">
                         <button type="submit" name="acquistaOraButton" class="btn btn-primary">Acquista ora</button>
                         <button type="submit" name="aggiungiAlCarrelloButton" class="btn btn-primary">Aggiungi al carrello</button>
                     </div>
                 </div>
-
-                {% endif %}
             </form>
         {% endfor %}
     {% else %}

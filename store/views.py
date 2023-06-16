@@ -18,7 +18,11 @@ def home(request):
                 stringaRicerca = form.cleaned_data["stringaRicerca"]
 
                 prodottiTrovati = Prodotto.objects.filter(
-                    ( Q(nome__contains=stringaRicerca) | Q(descrizione__contains=stringaRicerca) ) & Q(visibile=True)
+                    (
+                        Q(nome__contains=stringaRicerca) |
+                        Q(descrizione__contains=stringaRicerca) |
+                        Q(categoria__contains=stringaRicerca) ) &
+                        Q(visibile=True)
                     )
 
                 return render(request, 'store/home.html', {"form" : form , "prodottiTrovati":prodottiTrovati , "prodottiInVendita":prodottiInVendita})
@@ -94,10 +98,11 @@ def nuovoProdotto(request):
             n = form.cleaned_data["nome"]
             d = form.cleaned_data["descrizione"]
             p = form.cleaned_data["prezzo"]
-            nuovoP = Prodotto(nome=n, descrizione=d, prezzo=p)
+            c = form.cleaned_data["categoria"]
+            nuovoP = Prodotto(nome=n, descrizione=d, prezzo=p , categoria=c)
             nuovoP.save()
             
-            return HttpResponseRedirect("/home") 
+            return HttpResponseRedirect("/gestioneProdotti")
         
         else:
             print("form non valido")
@@ -261,10 +266,11 @@ def salvaPagamento(request):
         idOrdine = request.POST.get("idOrdine")
         ordineDaPagare = Ordine.objects.get(id=idOrdine)
         ordineDaPagare.numeroCarta = request.POST.get("numeroCarta")
-        ordineDaPagare.scadenzaCarta = request.POST.get("scadenzaCarta")
+        print("numeroCarta : " , ordineDaPagare.numeroCarta)
+        ordineDaPagare.scadenzaCarta = request.POST.get("dataScadenzaCarta")
         ordineDaPagare.cvvCarta = request.POST.get("cvvCarta")
+        ordineDaPagare.save()
         return HttpResponseRedirect("home")
-
 def vediStoricoOrdini(request):
     ordiniCliente = Ordine.objects.filter(cliente=request.user)
     return render(request ,  "store/vediStoricoOrdini.html" , {"ordiniCliente":ordiniCliente })

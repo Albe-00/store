@@ -15,14 +15,18 @@ Nuovo Prodotto
 
 
 {% block content %}
-<h3 >Aggiungi un nuovo prodotto</h3>
-<form method="post" action="/nuovoProdotto/">
-    {% csrf_token %}
-    <div>
-        {{form | crispy}}
+    <h3 >Aggiungi un nuovo prodotto</h3>
 
-        <button type="submit" name="save" class="btn btn-success">Aggiungi</button>
+    <form method="post" action="/nuovoProdotto/">
+        {% csrf_token %}
+        <div>
+            {{form | crispy}}
 
-    </div>
-</form>
+            <button type="submit" name="save" class="btn btn-success">Aggiungi</button>
+
+        </div>
+    </form>
+
+
+
 {% endblock %}

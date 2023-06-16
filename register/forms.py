@@ -9,11 +9,11 @@ class RegisterForm(UserCreationForm):
     cognome= forms.CharField(max_length=100)
     email = forms.EmailField()
 
-    #FIXME correggere la registrazione , aggiungendo nome e cognome
-    #con questo dico di salvare nel database username
-    #quando salveremo qualcosa in questo form verra salvato in username
-    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["first_name"] = self.fields.pop("nome")
+        self.fields["last_name"] = self.fields.pop("cognome")
     class Meta:
         model = User
-        fields = ["username", "nome" , "cognome" , "email", "password1", "password2"]
+        fields = ["username", "first_name", "last_name" , "email", "password1", "password2"]
 

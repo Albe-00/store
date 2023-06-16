@@ -2,15 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
 
-
 class Prodotto(models.Model):
     nome = models.CharField(max_length=200)
     descrizione = models.CharField(max_length=400)
     prezzo = models.FloatField()
+    categoria = models.CharField(max_length=200 , default="Non specificato")
     visibile = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nome+" | "+self.descrizione+" , prezzo : "+str(self.prezzo) +" €"
+
 
 
 #Classe di associazione tra prodotto e carrello con la quantità    
